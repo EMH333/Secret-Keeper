@@ -21,12 +21,10 @@ public class Secret {
     private long creationTime;//when was this secret created
     private String secret;
 
-    private int version;//the version of the secret (to help insure we don't break because of outdated secrets)
-
     @Index
-    private long upvotes; //Implemented in version 2: how popular a secret is
+    private long upvotes; //how popular a secret is
     @Index
-    private long downvotes; //Implemented in version 2: how popular a secret is
+    private long downvotes; //how not popular a secret is
 
     @Deprecated
     public Secret() {
@@ -72,14 +70,6 @@ public class Secret {
      */
     public void setCreationTime(Long creationTime) {
         this.creationTime = creationTime;
-    }
-
-    public int getVersion() {
-        return version;
-    }
-
-    public void setVersion(int version) {
-        this.version = version;
     }
 
     public long getUpvotes() {
