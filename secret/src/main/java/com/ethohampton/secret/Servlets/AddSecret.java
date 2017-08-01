@@ -43,7 +43,10 @@ public class AddSecret extends BasicServlet {
             Secret secret = new Secret(System.currentTimeMillis(), temp);
             Database.put(secret);
 
-            resp.addCookie(new Cookie("addedSecret", "1"));
+            Cookie cookie = new Cookie("addedSecret", "1");
+            cookie.setMaxAge(Constants.MAX_COOKIE_AGE);//cookie is good for 1 week
+            resp.addCookie(cookie);//add cookie to response
+
             resp.getWriter().println("Success");
         } else {
             resp.getWriter().print("Something went wrong");

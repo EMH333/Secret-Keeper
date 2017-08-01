@@ -38,18 +38,10 @@ public class RandomSecret extends BasicServlet {
             throws IOException {
         resp.setContentType("text/plain");
 
-        boolean needToShare = true;
+
         //checks to see if user has given a secret to the system and tells them to if they have not
         Cookie[] cookies = req.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("addedSecret")) {
-                    if (cookie.getValue().equals("1")) {
-                        needToShare = false;
-                    }
-                }
-            }
-        }
+        boolean needToShare = Utils.correctCookie(cookies);
         if (needToShare) {
             resp.getWriter().print(Utils.secretToJSON(new Secret(0, "You need to enter a secret in the system before you can view other secrets!"), "null"));
             return;

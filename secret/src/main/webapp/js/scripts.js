@@ -97,7 +97,7 @@ function nextSecret() {
 
         //disables button for set amount of seconds seconds
         $('.hear-buttons').prop('disabled', true);
-        var counter = 3;
+        var counter = 2;
         $('#hear-next').text(counter);
         var id = setInterval(function() {
           counter--;

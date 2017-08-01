@@ -16,6 +16,8 @@ public class Constants {
 
     public static final int MAX_SECRET_LENGTH = 2000;//characters max for a secret
     public static final int MIN_SECRET_LENGTH = 6;//characters min for a secret
+
+    public static final int MAX_COOKIE_AGE = 60 * 60 * 24 * 3;//3 days
     /*
     public static long generateUUID(){
         Random r = new SecureRandom();

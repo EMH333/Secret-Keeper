@@ -1,11 +1,13 @@
 package com.ethohampton.secret.Util;
 
 import com.ethohampton.secret.Objects.Secret;
-import com.google.gson.JsonObject;
 import com.google.common.base.Charsets;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
+import com.google.gson.JsonObject;
+
+import javax.servlet.http.Cookie;
 
 /**
  * Created by ethohampton on 6/5/17.
@@ -36,5 +38,24 @@ public class Utils {
         o.addProperty("id", id);
         o.addProperty("votes",s.getUpvotes()-s.getDownvotes());//NOTE: This is a purposeful decision to block user from seeing downvotes
         return o.toString();
+    }
+
+
+    /**
+     * @param cookies cookies from the request
+     * @return if the user has given a secret
+     */
+    public static boolean correctCookie(Cookie[] cookies) {
+        boolean needToShare = true;
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("addedSecret")) {
+                    if (cookie.getValue().equals("1")) {
+                        needToShare = false;
+                    }
+                }
+            }
+        }
+        return needToShare;
     }
 }
