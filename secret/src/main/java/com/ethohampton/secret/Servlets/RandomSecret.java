@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Random;
 
 import javax.inject.Singleton;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -36,6 +37,23 @@ public class RandomSecret extends BasicServlet {
     public void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
         resp.setContentType("text/plain");
+
+        boolean needToShare = true;
+        //checks to see if user has given a secret to the system and tells them to if they have not
+        Cookie[] cookies = req.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("addedSecret")) {
+                    if (cookie.getValue().equals("1")) {
+                        needToShare = false;
+                    }
+                }
+            }
+        }
+        if (needToShare) {
+            resp.getWriter().print(Utils.secretToJSON(new Secret(0, "You need to enter a secret in the system before you can view other secrets!"), "null"));
+            return;
+        }
 
         //update keys if needed, this prevents unnecessary database calls
         if ((lastUpdated + Constants.UPDATE_TIME < System.currentTimeMillis())||keys.isEmpty()) {
@@ -71,23 +89,4 @@ public class RandomSecret extends BasicServlet {
 
 
     }
-
-/*
-    private String keysToString(List<Key<Secret>> keys){
-        StringBuilder sb=new StringBuilder();
-        for (Key<Secret> l:keys) {
-            sb.append(l.toWebSafeString());
-            sb.append(Constants.SEPARATOR);
-        }
-        return sb.toString();
-    }
-    private List<Key<Secret>> keysFromString(String string){
-        String[] array = string.split(Constants.SEPARATOR);
-        List<Key<Secret>> keys = new ArrayList<Key<Secret>>();
-        for(String s:array){
-            keys.add(Key.valueOf(s));
-        }
-        return keys;
-    }
-    */
 }

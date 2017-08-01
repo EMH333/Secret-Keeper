@@ -41,7 +41,11 @@ $(document).ready(function() {
         console.log("Tried to insert secret, it was... " + data);
         //TODO: Never show direct response to user!!!
         alert(data);
-        // here we will handle errors and validation messages
+
+        if (currentSecret.id == "null") { //if the user was previously not aloud to view secrets, auto refresh
+          nextSecret();
+        }
+
       });
 
     $('#Secret').val(''); //clear text box
@@ -85,7 +89,7 @@ function nextSecret() {
       var secretObject = JSON.parse(JSON.stringify(data));
       currentSecret = secretObject; //insures we have info we need to vote and do other things
 
-      if ($('#hear-secret').text() == secretObject.secret) { //check to make sure secret is not a repeat
+      if ($('#hear-secret').text() == secretObject.secret && secretObject.id != "null") { //check to make sure secret is not a repeat
         nextSecret();
       } else {
         $('#hear-secret').text(secretObject.secret); //displays secret

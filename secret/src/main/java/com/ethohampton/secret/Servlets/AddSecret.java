@@ -9,6 +9,7 @@ import com.google.inject.Singleton;
 
 import java.io.IOException;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -42,6 +43,7 @@ public class AddSecret extends BasicServlet {
             Secret secret = new Secret(System.currentTimeMillis(), temp);
             Database.put(secret);
 
+            resp.addCookie(new Cookie("addedSecret", "1"));
             resp.getWriter().println("Success");
         } else {
             resp.getWriter().print("Something went wrong");
