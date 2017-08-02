@@ -77,6 +77,10 @@ public class RandomSecret extends BasicServlet {
             //get question
             Key<Object> key = keys.get(i).getRoot();
 
+            while (seen.size() >= keys.size()) {//insures we don't stop the server
+                seen.clear();
+            }
+
             while (seen.contains(keyHash(key))) {
                 i = r.nextInt(keys.size());
                 //get another question
