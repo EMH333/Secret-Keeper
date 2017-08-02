@@ -20,19 +20,12 @@ package com.ethohampton.secret.Guice;
 // effectively secure at all times.
 //
 
-import com.ethohampton.secret.Database;
-import com.ethohampton.secret.Objects.Secret;
-import com.ethohampton.secret.Servlets.AddSecret;
 import com.ethohampton.secret.Servlets.GetSecret;
-import com.ethohampton.secret.Servlets.RandomSecret;
-import com.ethohampton.secret.Servlets.VoteSecret;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.inject.Scopes;
 import com.google.inject.servlet.ServletModule;
 import com.googlecode.objectify.ObjectifyFilter;
-import com.googlecode.objectify.ObjectifyService;
-import com.googlecode.objectify.VoidWork;
 import com.googlecode.objectify.cache.AsyncCacheFilter;
 
 import java.util.Map;
@@ -67,24 +60,13 @@ public class ServeModule extends ServletModule {
 
         //filter("/*").through(AppstatsFilter.class, map("calculateRpcCosts", "true"));
 
-        serve(userBaseUrl + "/add").with(AddSecret.class);
-        serve(userBaseUrl + "/get").with(GetSecret.class);
-        serve(userBaseUrl + "/random").with(RandomSecret.class);
-        serve(userBaseUrl + "/vote").with(VoteSecret.class);
+
+        serve(userBaseUrl + "/*").with(GetSecret.class);
+
 
         if (ServeLogic.isDevelopmentServer()) {
             //do things here only in development
             LOG.info("This is a dev server");
-
-            //loads 4 test secrets to save dev time
-            ObjectifyService.run(new VoidWork() {
-                public void vrun() {
-                    Database.put(new Secret(System.currentTimeMillis(), "This is a test"));
-                    Database.put(new Secret(System.currentTimeMillis(), "This is a test 1"));
-                    Database.put(new Secret(System.currentTimeMillis(), "This is a test 2"));
-                    Database.put(new Secret(System.currentTimeMillis(), "This is a test 3"));
-                }
-            });
         }
     }
 }

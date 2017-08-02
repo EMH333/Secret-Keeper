@@ -1,10 +1,9 @@
 package com.ethohampton.secret.Servlets;
 
-import com.ethohampton.secret.Objects.BasicServlet;
-
 import java.io.IOException;
 
 import javax.inject.Singleton;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -13,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
  * gets a question
  */
 @Singleton
-public class GetSecret extends BasicServlet {
+public class GetSecret extends HttpServlet {
     public GetSecret() {
         super();
     }
@@ -23,30 +22,7 @@ public class GetSecret extends BasicServlet {
             throws IOException {
         resp.setContentType("text/plain");
 
-        resp.sendError(403);
-
-/*
-
-        //gets string
-        String queryString = req.getQueryString();
-
-           // Long id = 0L;
-           // try {
-           //     id = Long.parseLong(queryString);
-           // } catch (NumberFormatException e) {
-          //      resp.sendError(404, "Invalid ID");
-           // }
-
-
-        //get question
-        Secret temp = Database.get(queryString);
-        if (temp == null) {
-            resp.sendError(404, "Question not found");
-            return;
-        }
-        //formats question and sends response
-        resp.getWriter().println(temp.getSecret() + Constants.SEPARATOR + temp.getCreationTime());
-        */
+        resp.sendRedirect("/index.html");
 
     }
 }
