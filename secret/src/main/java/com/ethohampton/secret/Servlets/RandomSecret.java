@@ -94,12 +94,16 @@ public class RandomSecret extends BasicServlet {
             resp.getWriter().println(Utils.secretToJSON(q, key.toWebSafeString()));
             seen.add(keyHash(key));
 
+            if (seen.size() > Constants.MAX_SEEN_SECRETS_SIZE) {
+                seen.remove(0);//removes the oldest secret from the list so it does not get too long
+            }
+
             //turn arraylist to json
             Gson gson = new Gson();
             String json = gson.toJson(seen);
             //add list to cookie
             Cookie seenSecrets = new Cookie("seenSecrets", json);
-            seenSecrets.setMaxAge(60 * 60 * 24 * 7 * 4);//cookie good for 4 weeks
+            seenSecrets.setMaxAge(60 * 60 * 24 * 7 * 2);//cookie good for 2 weeks
             resp.addCookie(seenSecrets);
         } catch (Exception e) {
             resp.sendError(500);
