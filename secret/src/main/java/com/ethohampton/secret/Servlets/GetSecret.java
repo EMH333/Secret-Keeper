@@ -1,9 +1,6 @@
 package com.ethohampton.secret.Servlets;
 
-import com.ethohampton.secret.Database;
 import com.ethohampton.secret.Objects.BasicServlet;
-import com.ethohampton.secret.Objects.Secret;
-import com.ethohampton.secret.Util.Constants;
 
 import java.io.IOException;
 
@@ -26,16 +23,20 @@ public class GetSecret extends BasicServlet {
             throws IOException {
         resp.setContentType("text/plain");
 
+        resp.sendError(403);
+
+/*
+
         //gets string
         String queryString = req.getQueryString();
-/*
-            Long id = 0L;
-            try {
-                id = Long.parseLong(queryString);
-            } catch (NumberFormatException e) {
-                resp.sendError(404, "Invalid ID");
-            }
-*/
+
+           // Long id = 0L;
+           // try {
+           //     id = Long.parseLong(queryString);
+           // } catch (NumberFormatException e) {
+          //      resp.sendError(404, "Invalid ID");
+           // }
+
 
         //get question
         Secret temp = Database.get(queryString);
@@ -45,6 +46,7 @@ public class GetSecret extends BasicServlet {
         }
         //formats question and sends response
         resp.getWriter().println(temp.getSecret() + Constants.SEPARATOR + temp.getCreationTime());
+        */
 
     }
 }
