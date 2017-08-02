@@ -19,6 +19,9 @@ public class Constants {
 
     public static final int MAX_COOKIE_AGE = 60 * 60 * 24 * 4;//4 days till you have to enter another secret
     public static final int MAX_SEEN_SECRETS_SIZE = 50;//max seen secrets before cookie gets too big
+
+    public static final String BAD_WORDS_FILENAME = "WEB-INF/badwords.cvs";
+    public static final String BAD_HASHES_FILENAME = "WEB-INF/banned_hashes.txt";
     /*
     public static long generateUUID(){
         Random r = new SecureRandom();

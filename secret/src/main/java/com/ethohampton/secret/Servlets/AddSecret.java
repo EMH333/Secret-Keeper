@@ -4,7 +4,7 @@ import com.ethohampton.secret.Database;
 import com.ethohampton.secret.Objects.BasicServlet;
 import com.ethohampton.secret.Objects.Secret;
 import com.ethohampton.secret.Util.Constants;
-import com.ethohampton.secret.Util.WordFilter;
+import com.ethohampton.secret.Util.Filter;
 import com.google.inject.Singleton;
 
 import java.io.IOException;
@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 public class AddSecret extends BasicServlet {
     public AddSecret() {
         super();
-        WordFilter.loadConfigs("WEB-INF/badwords.cvs");//loads bad words from proper location
+        Filter.loadConfigs();//loads bad words from proper location
     }
 
     @Override
@@ -59,11 +59,12 @@ public class AddSecret extends BasicServlet {
         //insures string is not empty
         if (secret.isEmpty()) {
             add = false;
+            //check to see if we are filtering bad words and if we are then insures non are present
         } else if (Constants.FILTER_WORDS) {
-            if (!WordFilter.passesAllFilters(secret))//if it does not pass all precheck filters
+            if (!Filter.passesAllFilters(secret)) {//if it does not pass all precheck filters
                 add = false;
+            }
         }
-        //check to see if we are filtering bad words and if we are then insures non are present
 
 
         return add;

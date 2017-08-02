@@ -13,25 +13,25 @@ import static junit.framework.TestCase.assertTrue;
 public class WordFilterTest {
     @Before
     public void setUp() throws Exception {
-        WordFilter.loadConfigs("secret/src/main/webapp/WEB-INF/badwords.cvs");
+        Filter.loadConfigs("secret/src/main/webapp/WEB-INF/badwords.cvs");
     }
 
     @Test
     public void badWordsFound() throws Exception {
-        assertFalse(WordFilter.badWordsFound("shit").isEmpty());
-        assertFalse(WordFilter.badWordsFound("ethan hampton").isEmpty());
+        assertFalse(Filter.badWordsFound("shit").isEmpty());
+        assertFalse(Filter.badWordsFound("ethan hampton").isEmpty());
     }
 
     @Test
     public void passesAllFilters() throws Exception {
-        assertFalse(WordFilter.passesAllFilters("123452"));
-        assertFalse(WordFilter.passesAllFilters("abcd"));
-        assertFalse(WordFilter.passesAllFilters("www.google.com"));
-        assertFalse(WordFilter.passesAllFilters("google.com"));
-        assertFalse(WordFilter.passesAllFilters("https://e.co"));
+        assertFalse(Filter.passesAllFilters("123452"));
+        assertFalse(Filter.passesAllFilters("abcd"));
+        assertFalse(Filter.passesAllFilters("www.google.com"));
+        assertFalse(Filter.passesAllFilters("google.com"));
+        assertFalse(Filter.passesAllFilters("https://e.co"));
 
 
-        assertTrue(WordFilter.passesAllFilters("this is a really quick test"));
+        assertTrue(Filter.passesAllFilters("this is a really quick test"));
     }
 
 }

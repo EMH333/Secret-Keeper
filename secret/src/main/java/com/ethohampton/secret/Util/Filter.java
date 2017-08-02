@@ -14,15 +14,16 @@ import java.util.HashMap;
  * Filters out words as needed
  */
 
-public class WordFilter {
+public class Filter {
     private static final String URL_REGEX = "(http:\\/\\/\\s*|https:\\/\\/\\s*|ftp:\\/\\/\\s*)?(www\\s*)?([a-zA-Z0-9.-]{2,256})(\\s*[.]\\s*)(ru|pl|kz|by|ua|com|in|pt|br|co.uk)(?![a-zA-Z])([?|#]{1}[=&#a-zA-Z0-9]{2,128})?";
 
     private static HashMap<String, String[]> words = new HashMap<>();
+    private static ArrayList<String> bannedHashes = new ArrayList<>();
     private static int largestWordLength = 0;
 
-    public static void loadConfigs(String filename) {
+    public static void loadConfigs() {
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(filename))));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(Constants.BAD_WORDS_FILENAME))));
             String line = "";
             int counter = 0;
             while ((line = reader.readLine()) != null) {
@@ -50,6 +51,13 @@ public class WordFilter {
 
             }
             System.out.println("Loaded " + counter + " words to filter out");
+
+            BufferedReader hashesReader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(Constants.BAD_HASHES_FILENAME))));
+            String hash = "";
+            while ((hash = hashesReader.readLine()) != null) {
+                bannedHashes.add(hash);
+            }
+            System.out.println("Loaded " + bannedHashes.size() + " hashes to filter out");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -120,7 +128,12 @@ public class WordFilter {
         }
 
         ArrayList<String> badWords = badWordsFound(input);//check for badwords
-        if(badWords.size() > 0){
+        if (badWords.size() > 0) {
+            return false;
+        }
+
+        //check to see if that secret is banned
+        if (bannedHashes.contains(Utils.hash(input))) {
             return false;
         }
 
