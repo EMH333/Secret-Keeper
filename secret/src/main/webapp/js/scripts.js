@@ -103,7 +103,6 @@ function nextSecret() {
           counter--;
           if (counter < 0) {
             $('.hear-buttons').prop('disabled', false);
-
             $('#hear-next').text("next");
             clearInterval(id);
           } else {
