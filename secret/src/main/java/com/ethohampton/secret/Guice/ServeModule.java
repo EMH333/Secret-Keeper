@@ -72,6 +72,7 @@ public class ServeModule extends ServletModule {
         serve(userBaseUrl + "/random").with(RandomSecret.class);
         serve(userBaseUrl + "/vote").with(VoteSecret.class);
 
+
         if (ServeLogic.isDevelopmentServer()) {
             //do things here only in development
             LOG.info("This is a dev server");

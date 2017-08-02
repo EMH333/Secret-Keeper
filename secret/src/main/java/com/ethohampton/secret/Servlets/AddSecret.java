@@ -4,6 +4,7 @@ import com.ethohampton.secret.Database;
 import com.ethohampton.secret.Objects.BasicServlet;
 import com.ethohampton.secret.Objects.Secret;
 import com.ethohampton.secret.Util.Constants;
+import com.ethohampton.secret.Util.VerifyStrings;
 import com.ethohampton.secret.Util.WordFilter;
 import com.google.inject.Singleton;
 
@@ -24,6 +25,7 @@ public class AddSecret extends BasicServlet {
     public AddSecret() {
         super();
         WordFilter.loadConfigs("WEB-INF/badwords.cvs");//loads bad words from proper location
+        VerifyStrings.loadKeys();
     }
 
     @Override
@@ -43,8 +45,10 @@ public class AddSecret extends BasicServlet {
             Secret secret = new Secret(System.currentTimeMillis(), temp);
             Database.put(secret);
 
-            Cookie cookie = new Cookie("addedSecret", "1");
-            cookie.setMaxAge(Constants.MAX_COOKIE_AGE);//cookie is good for 1 week
+            long currentTime = System.currentTimeMillis();
+            long cookieTime = currentTime + Constants.MAX_COOKIE_AGE;
+            Cookie cookie = new Cookie("addedSecret", cookieTime + Constants.SEPARATOR + VerifyStrings.sign(String.valueOf(currentTime)));//adds signed time stamp for authenticity
+            cookie.setMaxAge(Constants.MAX_COOKIE_AGE);//cookie is good for the max age defined in constants
             resp.addCookie(cookie);//add cookie to response
 
             resp.getWriter().println("Success");

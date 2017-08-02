@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 import javax.inject.Singleton;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -30,6 +31,15 @@ public class VoteSecret extends BasicServlet {
     public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
         resp.setContentType("text/plain");
+
+        //checks to see if user has given a secret to the system and tells them to if they have not
+        Cookie[] cookies = req.getCookies();
+        boolean needToShare = Utils.correctCookie(cookies);
+        if (needToShare) {
+            resp.getWriter().println("Please authenticate");
+            resp.setStatus(404);
+            return;
+        }
 
         //gets string
         String id = req.getParameter("id");

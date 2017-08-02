@@ -27,8 +27,7 @@ public class Utils {
     }
 
     /**
-     *
-     * @param s the secret
+     * @param s  the secret
      * @param id the id to show the user, should be easy to find in database
      * @return JSON representation of the secret object
      */
@@ -36,26 +35,31 @@ public class Utils {
         JsonObject o = new JsonObject();
         o.addProperty("secret", s.getSecret());
         o.addProperty("id", id);
-        o.addProperty("votes",s.getUpvotes()-s.getDownvotes());//NOTE: This is a purposeful decision to block user from seeing downvotes
+        o.addProperty("votes", s.getUpvotes() - s.getDownvotes());//NOTE: This is a purposeful decision to block user from seeing downvotes
         return o.toString();
     }
 
 
     /**
      * @param cookies cookies from the request
-     * @return if the user has given a secret
+     * @return if the user has given a secret in a valid time span that is signed by the server
      */
     public static boolean correctCookie(Cookie[] cookies) {
-        boolean needToShare = true;
+        boolean needToShareFirst = true;
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals("addedSecret")) {
-                    if (cookie.getValue().equals("1")) {
-                        needToShare = false;
+                    String[] parts = cookie.getValue().split(Constants.SEPARATOR);//splits cookie into parts
+                    if (parts.length == 2) {
+                        if (Long.valueOf(parts[0]) > System.currentTimeMillis()) {//confirms cookie is not expired
+                            if (VerifyStrings.verify(parts[0], parts[1])) {//verifys time stamp and signature
+                                needToShareFirst = false;
+                            }
+                        }
                     }
                 }
             }
         }
-        return needToShare;
+        return needToShareFirst;
     }
 }
