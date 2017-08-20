@@ -5,6 +5,7 @@ import com.ethohampton.secret.Objects.BasicServlet;
 import com.ethohampton.secret.Objects.Secret;
 import com.ethohampton.secret.Util.Constants;
 import com.ethohampton.secret.Util.Filter;
+import com.ethohampton.secret.Util.VerifyStrings;
 import com.google.inject.Singleton;
 
 import java.io.IOException;
@@ -52,7 +53,10 @@ public class AddSecret extends BasicServlet {
             Secret secret = new Secret(System.currentTimeMillis(), temp);
             Database.putSecret(secret);
 
-            Cookie cookie = new Cookie("addedSecret", "1");
+            long currentTime = System.currentTimeMillis();
+            long cookieTime = currentTime + Constants.MAX_COOKIE_AGE;
+
+            Cookie cookie = new Cookie("addedSecret", cookieTime + Constants.SEPARATOR + VerifyStrings.sign(String.valueOf(cookieTime)));//adds signed time stamp for authenticity
             cookie.setMaxAge(Constants.MAX_COOKIE_AGE);//cookie is good a good amount of time
             resp.addCookie(cookie);//add cookie to response
 

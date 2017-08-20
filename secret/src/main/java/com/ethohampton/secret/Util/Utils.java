@@ -69,7 +69,6 @@ public class Utils {
     }
 
 
-
     /**
      * @param cookies cookies from the request
      * @return if the user has given a secret
@@ -79,8 +78,13 @@ public class Utils {
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals("addedSecret")) {
-                    if (cookie.getValue().equals("1")) {
-                        needToShare = false;
+                    String[] parts = cookie.getValue().split(Constants.SEPARATOR);//splits cookie into parts
+                    if (parts.length == 2) {
+                        if (Long.valueOf(parts[0]) > System.currentTimeMillis()) {//confirms cookie is not expired
+                            if (VerifyStrings.verify(parts[0], parts[1])) {//verifys time stamp and signature
+                                needToShare = false;
+                            }
+                        }
                     }
                 }
             }
