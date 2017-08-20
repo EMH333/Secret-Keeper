@@ -2,26 +2,25 @@ package com.ethohampton.secret.Servlets;
 
 import com.ethohampton.secret.Database;
 import com.ethohampton.secret.Objects.BasicServlet;
-import com.ethohampton.secret.Objects.Secret;
+import com.ethohampton.secret.Objects.Comment;
 import com.ethohampton.secret.Util.Constants;
 import com.ethohampton.secret.Util.Filter;
-import com.google.inject.Singleton;
+import com.googlecode.objectify.Key;
 
 import java.io.IOException;
 
-import javax.servlet.http.Cookie;
+import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
 /**
- * Created by ethohampton on 12/16/16.
+ * Created by ethohampton on 8/13/17.
  * <p>
- * adds vote for one answer
+ * Allows for people to add comments to a secret
  */
 @Singleton
-public class AddSecret extends BasicServlet {
-    public AddSecret() {
+public class AddComment extends BasicServlet {
+    public AddComment() {
         super();
         if (!Filter.hasConfigs())
             Filter.loadConfigs();//loads bad words from proper location
@@ -32,34 +31,35 @@ public class AddSecret extends BasicServlet {
             throws IOException {
         resp.setContentType("text/plain");
 
-        boolean addToDatabase = true;
+        String secretId = req.getParameter("secretID");
 
         //gets string and checks if it should be added to the database
-        String temp = req.getParameter("secret");
+        String commentString = req.getParameter("comment");
 
+        boolean addToDatabase = true;
         //insures string is not empty
-        if (temp.isEmpty()) {
+        if (commentString.isEmpty() || secretId.isEmpty()) {
             addToDatabase = false;
             //check to see if we are filtering bad words and if we are then insures non are present
+        } else if (!Database.objectExists(Key.create(secretId))) {
+            addToDatabase = false;
         } else if (Constants.FILTER_WORDS) {
-            if (!Filter.passesAllFilters(temp)) {//if it does not pass all precheck filters
+            if (!Filter.passesAllFilters(commentString)) {//if it does not pass all precheck filters
                 addToDatabase = false;
             }
         }
 
-        if (addToDatabase) {
-            temp = temp.trim();
-            Secret secret = new Secret(System.currentTimeMillis(), temp);
-            Database.putSecret(secret);
-
-            Cookie cookie = new Cookie("addedSecret", "1");
-            cookie.setMaxAge(Constants.MAX_COOKIE_AGE);//cookie is good a good amount of time
-            resp.addCookie(cookie);//add cookie to response
+        if (addToDatabase) {//if it passes all checks
+            commentString = commentString.trim();
+            Comment comment = new Comment(System.currentTimeMillis(), commentString, Key.create(secretId).getName());
+            Database.putComment(comment);
 
             resp.getWriter().println("Success");
         } else {
-            resp.sendError(400, "Something went wrong, please try again");
+            resp.getWriter().print("Something went wrong, please try again");
+            resp.setStatus(400);
         }
     }
+
 
 }

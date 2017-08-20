@@ -6,7 +6,7 @@ $(document).ready(function() {
   nextSecret(); //load a secret to it is all ready to go
 
   // process the form
-  $('form').submit(function(event) {
+  $('#form').submit(function(event) {
 
     $('#submit-secret').prop('disabled', true);
     var counter = 7;
@@ -20,7 +20,7 @@ $(document).ready(function() {
       } else {
         $('#submit-secret').text(counter);
       }
-    }, 1000)
+    }, 1000);
 
     // get the form data
     // there are many ways to get this data using jQuery (you can use the class or id also)
@@ -32,7 +32,18 @@ $(document).ready(function() {
         url: 'add', // the url where we want to POST
         data: formData, // our data object
         dataType: 'text', // what type of data do we expect back from the server
-        encode: true
+        encode: true,
+        success: function(data, textStatus, xhr) {
+          counter -= 4; //remove some time from the counter if the insertion was successful
+          $('#Secret').val(''); //clear text box
+        },
+      })
+      .fail(function(response) {
+        if (response.status != 400) {
+          alert("There seems to be a problem, try again soon.");
+        } else {
+          alert("Make sure your secret is acceptable to the general public and isn't really short or really long!");
+        }
       })
       // using the done promise callback
       .done(function(data) {
@@ -42,13 +53,11 @@ $(document).ready(function() {
         //TODO: Never show direct response to user!!!
         alert(data);
 
-        if (currentSecret.id == "null") { //if the user was previously not aloud to view secrets, auto refresh
+        if (currentSecret.id == "null") { //if the user was previously not allowed to view secrets, auto refresh
           nextSecret();
         }
 
       });
-
-    $('#Secret').val(''); //clear text box
 
     // stop the form from submitting the normal way and refreshing the page
     event.preventDefault();
@@ -63,23 +72,23 @@ function nextSecret() {
   $.ajax({
       type: 'GET', // define the type of HTTP verb we want to use (POST for our form)
       url: 'random', // the url where we want to POST
-      data: "", // our data object
+      data: "loadComments=true", // our data object
       dataType: 'json', // what type of data do we expect back from the server
       encode: true,
       error: function(xhr, exception) {
         if (xhr.status === 0)
-          console.log('Error : ' + xhr.status + 'You are not connected.');
+          console.log('Error:' + xhr.status + '\nYou are not connected.');
         else if (xhr.status == "201")
-          console.log('Error : ' + xhr.status + '\nServer error.');
+          console.log('Error:' + xhr.status + '\nServer error.');
         else if (xhr.status == "404")
-          console.log('Error : ' + xhr.status + '\nPage note found');
+          console.log('Error:' + xhr.status + '\nPage note found');
         else if (xhr.status == "500")
           console.log('Internal Server Error [500].');
         else if (exception === 'parsererror')
-          console.log('Error : ' + xhr.status +
+          console.log('Error:' + xhr.status +
             '\nImpossible to parse result.');
         else if (exception === 'timeout')
-          console.log('Error : ' + xhr.status + '\nRequest timeout.');
+          console.log('Error:' + xhr.status + '\nRequest timeout.');
         else
           console.log('Error .\n' + xhr.responseText);
       }
@@ -89,11 +98,16 @@ function nextSecret() {
       var secretObject = JSON.parse(JSON.stringify(data));
       currentSecret = secretObject; //insures we have info we need to vote and do other things
 
+      console.log("Recived secret with id: " + secretObject.id);
+
       if ($('#hear-secret').text() == secretObject.secret && secretObject.id != "null") { //check to make sure secret is not a repeat
         nextSecret();
       } else {
         $('#hear-secret').text(secretObject.secret); //displays secret
         $('#hear-votes').text(secretObject.votes); //displays votes
+
+        //have comments class load all the comments
+        displayComments(secretObject.comments);
 
         //disables button for set amount of seconds seconds
         $('.hear-buttons').prop('disabled', true);
@@ -103,7 +117,6 @@ function nextSecret() {
           counter--;
           if (counter < 0) {
             $('.hear-buttons').prop('disabled', false);
-
             $('#hear-next').text("next");
             clearInterval(id);
           } else {
@@ -148,4 +161,8 @@ function downVote() {
     });
     nextSecret();
   }
+}
+
+function getCurrentSecret() {
+  return currentSecret;
 }
