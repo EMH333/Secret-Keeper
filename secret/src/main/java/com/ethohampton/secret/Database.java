@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * Created by ethohampton on 12/15/16.
- * Connects to cloud data store
+ * Connects to cloud datastore
  */
 
 public class Database {
