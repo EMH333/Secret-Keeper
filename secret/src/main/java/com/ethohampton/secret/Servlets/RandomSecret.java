@@ -2,6 +2,7 @@ package com.ethohampton.secret.Servlets;
 
 import com.ethohampton.secret.Database;
 import com.ethohampton.secret.Objects.BasicServlet;
+import com.ethohampton.secret.Objects.Comment;
 import com.ethohampton.secret.Objects.Secret;
 import com.ethohampton.secret.OfyService;
 import com.ethohampton.secret.Util.Constants;
@@ -45,7 +46,7 @@ public class RandomSecret extends BasicServlet {
         Cookie[] cookies = req.getCookies();
         boolean needToShare = Utils.correctCookie(cookies);
         if (needToShare) {
-            resp.getWriter().print(Utils.secretToJSON(new Secret(0, "You need to enter a secret in the system before you can view other secrets!"), "null"));
+            resp.getWriter().print(Utils.secretToJSON(new Secret(0, "You need to enter a secret in the system before you can view other secrets!"), "null", null));
             return;
         }
 
@@ -87,15 +88,20 @@ public class RandomSecret extends BasicServlet {
                 key = keys.get(i).getRoot();
             }
 
-            Secret q = Database.get(key);
+            Secret q = Database.getSecret(key);
 
             //makes sure question is not null
             if (q == null) {
                 resp.sendError(404, "Invalid ID");
                 return;
             }
+
+            List<Comment> comments = null;
+            if (req.getParameter("loadComments").equals("true")) {//loads comments if asked
+                comments = Database.getCommentsFromSecret(q.getId(), 0);
+            }
             //send response
-            resp.getWriter().println(Utils.secretToJSON(q, key.toWebSafeString()));
+            resp.getWriter().println(Utils.secretToJSON(q, key.toWebSafeString(), comments));//print JSON of secret, including comments if asked
             seen.add(keyHash(key));
 
             if (seen.size() > Constants.MAX_SEEN_SECRETS_SIZE) {

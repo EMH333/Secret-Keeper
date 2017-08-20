@@ -1,5 +1,6 @@
 package com.ethohampton.secret;
 
+import com.ethohampton.secret.Objects.Comment;
 import com.ethohampton.secret.Objects.Secret;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyFactory;
@@ -13,6 +14,7 @@ import com.googlecode.objectify.ObjectifyService;
 public class OfyService {
     static {
         factory().register(Secret.class);
+        factory().register(Comment.class);
     }
     public static Objectify ofy() {
         return ObjectifyService.ofy();

@@ -7,13 +7,14 @@ import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 
 /**
- * Created by ethohampton on 7/5/17.
- * Testing for word filter
+ * Created by ethohampton on 8/18/17.
+ * <p>
+ * Tests profanity filter
  */
-public class WordFilterTest {
+public class FilterTest {
     @Before
     public void setUp() throws Exception {
-        Filter.loadConfigs("secret/src/main/webapp/WEB-INF/badwords.cvs");
+        Filter.loadConfigs();
     }
 
     @Test

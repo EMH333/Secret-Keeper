@@ -21,6 +21,12 @@ public class Filter {
     private static ArrayList<String> bannedHashes = new ArrayList<>();
     private static int largestWordLength = 0;
 
+    private static boolean loadedConfigs = false;
+
+    public static boolean hasConfigs() {
+        return loadedConfigs;
+    }
+
     public static void loadConfigs() {
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(Constants.BAD_WORDS_FILENAME))));
@@ -58,6 +64,8 @@ public class Filter {
                 bannedHashes.add(hash);
             }
             System.out.println("Loaded " + bannedHashes.size() + " hashes to filter out");
+
+            loadedConfigs = true;
         } catch (IOException e) {
             e.printStackTrace();
         }

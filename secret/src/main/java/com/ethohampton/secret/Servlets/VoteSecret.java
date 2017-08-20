@@ -37,7 +37,7 @@ public class VoteSecret extends BasicServlet {
 
         try {
             //get question
-            Secret temp = Database.get(Key.create(id));
+            Secret temp = Database.getSecret(Key.create(id));
             if (temp == null) {
                 resp.sendError(404, "Question not found");
             } else {
@@ -49,10 +49,10 @@ public class VoteSecret extends BasicServlet {
                     temp.addDownVote();
                 }
 
-                Database.put(temp);//put back in database
+                Database.putSecret(temp);//put back in database
 
                 //formats question and sends response
-                resp.getWriter().println(Utils.secretToJSON(temp, id));
+                resp.getWriter().println(Utils.secretToJSON(temp, id, null));
             }
         } catch (IllegalArgumentException e) {
             resp.getWriter().println("Invalid ID");

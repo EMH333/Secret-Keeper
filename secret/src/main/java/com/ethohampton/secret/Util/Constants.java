@@ -22,6 +22,8 @@ public class Constants {
 
     public static final String BAD_WORDS_FILENAME = "WEB-INF/badwords.cvs";
     public static final String BAD_HASHES_FILENAME = "WEB-INF/banned_hashes.txt";
+
+    public static final int MAX_COMMENTS_PER_LOAD = 25;
     /*
     public static long generateUUID(){
         Random r = new SecureRandom();
