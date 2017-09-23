@@ -5,6 +5,7 @@ import com.ethohampton.secret.Objects.BasicServlet;
 import com.ethohampton.secret.Objects.Secret;
 import com.ethohampton.secret.Util.Constants;
 import com.ethohampton.secret.Util.Filter;
+import com.ethohampton.secret.Util.UUIDs;
 import com.google.inject.Singleton;
 
 import java.io.IOException;
@@ -45,11 +46,20 @@ public class AddSecret extends BasicServlet {
             if (!Filter.passesAllFilters(temp)) {//if it does not pass all precheck filters
                 addToDatabase = false;
             }
+        } else if (Database.objectExists(Secret.createKey(temp))) {
+            addToDatabase = false;
         }
 
         if (addToDatabase) {
+            //attempts to get UUID for user, if that fails then it creates a new one and adds it to the users cookies
+            String uuid = UUIDs.getUUID(req.getCookies());
+            if (uuid == null || uuid.isEmpty()) {
+                uuid = UUIDs.createUUID();
+                resp.addCookie(UUIDs.createUUIDCookie(uuid));
+            }
+
             temp = temp.trim();
-            Secret secret = new Secret(System.currentTimeMillis(), temp);
+            Secret secret = new Secret(System.currentTimeMillis(), temp, uuid);
             Database.putSecret(secret);
 
             Cookie cookie = new Cookie("addedSecret", "1");

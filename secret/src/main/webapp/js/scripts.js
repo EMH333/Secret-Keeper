@@ -40,9 +40,9 @@ $(document).ready(function() {
       })
       .fail(function(response) {
         if (response.status != 400) {
-          alert("There seems to be a problem, try again soon.");
+          popUp("There seems to be a problem try again soon.");
         } else {
-          alert("Make sure your secret is acceptable to the general public and isn't really short or really long!");
+          popUp("Make sure your secret is acceptable to the general public and isn't really short or really long!");
         }
       })
       // using the done promise callback
@@ -51,7 +51,7 @@ $(document).ready(function() {
         // log data to the console so we can see
         console.log("Tried to insert secret, it was... " + data);
         //TODO: Never show direct response to user!!!
-        alert(data);
+        popUp(data);
 
         if (currentSecret.id == "null") { //if the user was previously not allowed to view secrets, auto refresh
           nextSecret();
@@ -165,4 +165,13 @@ function downVote() {
 
 function getCurrentSecret() {
   return currentSecret;
+}
+
+
+
+function popUp(message) {
+  var modal = $("#popup");
+  //modal.find('.modal-title').text(message);
+  modal.find('.modal-body h4').text(message);
+  modal.modal('show');
 }

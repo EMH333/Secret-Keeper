@@ -25,12 +25,26 @@ public class Utils {
      * @param toHash the string to hash
      * @return the Murmur 32 hash of the input string
      */
-    public static String hash(String toHash) {
+    public static String shortHash(String toHash) {
         toHash = toHash.trim();
         toHash = toHash.toLowerCase();
         toHash = toHash.replaceAll("\\s+", "");
 
-        HashFunction hf = Hashing.murmur3_32();
+        HashFunction hf = Hashing.murmur3_32();//NOTE: Because of values in production this hash function can not be seeded. Need to find a way to fix to prevent abuse (although unlikely)
+        HashCode hc = hf.newHasher().putString(toHash, Charsets.UTF_8).hash();
+        return hc.toString();
+    }
+
+    /**
+     * @param toHash the string to hash
+     * @return the Murmur 128 hash of the input string
+     */
+    public static String longHash(String toHash) {
+        toHash = toHash.trim();
+        toHash = toHash.toLowerCase();
+        toHash = toHash.replaceAll("\\s+", "");
+
+        HashFunction hf = Hashing.murmur3_128(236048790);//NOTE: This is only seeded because it can be, should help to prevent hash collisions
         HashCode hc = hf.newHasher().putString(toHash, Charsets.UTF_8).hash();
         return hc.toString();
     }
@@ -56,6 +70,12 @@ public class Utils {
         c.addProperty("comment", temp.getComment());
         c.addProperty("id", temp.getId());
         c.addProperty("votes", temp.getUpvotes() - temp.getDownvotes());
+        if (temp.isCreatorIsCreatorOfSecret()) {//indicates if this comment is from the creator of this secret
+            c.addProperty("isCreatorComment", true);
+        }
+        if (temp.getReferencedCommentID() != null && !temp.getReferencedCommentID().equals("")) {//if this comment is in response to another comment then add that
+            c.addProperty("refrencedComment", temp.getReferencedCommentID());
+        }
         return c.toString();
     }
 
@@ -67,7 +87,6 @@ public class Utils {
         }
         return Jsoncomments;
     }
-
 
 
     /**

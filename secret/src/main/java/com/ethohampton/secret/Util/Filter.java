@@ -141,7 +141,7 @@ public class Filter {
         }
 
         //check to see if that secret is banned
-        if (bannedHashes.contains(Utils.hash(input))) {
+        if (bannedHashes.contains(Utils.shortHash(input))) {
             return false;
         }
 

@@ -1,6 +1,7 @@
 package com.ethohampton.secret.Objects;
 
 import com.ethohampton.secret.Util.Utils;
+import com.googlecode.objectify.Key;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
@@ -26,14 +27,17 @@ public class Secret {
     @Index
     private long downvotes; //how not popular a secret is
 
+    private String creator;//the creator of this secret. Allows for us to track back and add different tags to creator comments
+
     @Deprecated
     public Secret() {
     }
 
-    public Secret(long creationTime, String secret) {
+    public Secret(long creationTime, String secret, String creator) {
         this.creationTime = creationTime;
         this.secret = secret;//StringEscapeUtils.escapeHtml4(secret);
-        this.id = Utils.hash(secret);
+        this.id = Utils.shortHash(secret);
+        this.creator = creator;
     }
 
     public String getSecret() {
@@ -94,6 +98,23 @@ public class Secret {
 
     public void addUpVote() {
         upvotes++;
+    }
+
+    public String getCreator() {
+        return creator;
+    }
+
+    public Secret setCreator(String creator) {
+        this.creator = creator;
+        return this;
+    }
+
+    /**
+     * @param content The actual secret to create the key for
+     * @return The key for the content provided
+     */
+    public static Key createKey(String content) {
+        return Key.create(Secret.class, content);
     }
 }
 

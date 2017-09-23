@@ -9,6 +9,7 @@ import com.ethohampton.secret.Servlets.GetComment;
 import com.ethohampton.secret.Servlets.GetSecret;
 import com.ethohampton.secret.Servlets.RandomSecret;
 import com.ethohampton.secret.Servlets.VoteSecret;
+import com.ethohampton.secret.Util.UUIDs;
 import com.ethohampton.secret.Util.Utils;
 import com.google.common.base.Preconditions;
 import com.google.inject.Scopes;
@@ -66,12 +67,12 @@ public class ServeModule extends ServletModule {
             //loads 4 test secrets to save dev time
             ObjectifyService.run(new VoidWork() {
                 public void vrun() {
-                    Database.putSecret(new Secret(System.currentTimeMillis(), "This is a test"));
-                    Database.putSecret(new Secret(System.currentTimeMillis(), "This is a test 1"));
-                    Database.putSecret(new Secret(System.currentTimeMillis(), "This is a test 2"));
-                    Database.putSecret(new Secret(System.currentTimeMillis(), "This is a test 3"));
+                    Database.putSecret(new Secret(System.currentTimeMillis(), "This is a test", UUIDs.createUUID()));
+                    Database.putSecret(new Secret(System.currentTimeMillis(), "This is a test 1", UUIDs.createUUID()));
+                    Database.putSecret(new Secret(System.currentTimeMillis(), "This is a test 2", UUIDs.createUUID()));
+                    Database.putSecret(new Secret(System.currentTimeMillis(), "This is a test 3", UUIDs.createUUID()));
 
-                    Database.putComment(new Comment(System.currentTimeMillis(), "Test Comment", Utils.hash("This is a test")));
+                    Database.putComment(new Comment(System.currentTimeMillis(), "Test Comment", Utils.shortHash("This is a test"), UUIDs.createUUID()));
                 }
             });
         }

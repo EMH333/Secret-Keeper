@@ -19,7 +19,7 @@ $(document).ready(function() {
         // log data to the console so we can see
         console.log("Tried to add comment, it was... " + data);
         //TODO: Never show direct response to user!!!
-        alert(data);
+        popUp(data);
         nextSecret();
       });
 
@@ -57,17 +57,17 @@ function loadComment(data) {
   var commentsList = $('#comment-list');
   commentsList.addClass('has-comments');
   commentsList.prepend(commentEl);
+  if (data.isCreatorComment) { //only show star if the comment if from the creator
+    $('#' + data.id).find('p').find('span').css('visibility', 'visible');
+  }
   commentEl.slideDown();
 }
 
 function createComment(data) {
   var html = '' +
-    '<li class="list-group-item" value="' + data.votes + '"><article id="' + data.id + '" class="hentry">' +
-    '<div class="entry-content">' +
-    '<p>' + data.comment + '</p>' +
-    '</div>' +
+    '<li class="list-group-item" value="' + data.votes + '"><article id="' + data.id + '">' +
+    '<p class="entry-content comment-info">' + '<span class="glyphicon glyphicon-star" style="visibility: hidden;" aria-hidden="true"></span>' + data.comment + '</p>' +
     '</article></li>';
-
   return html;
 }
 

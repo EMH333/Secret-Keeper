@@ -31,6 +31,7 @@ public class RandomSecret extends BasicServlet {
 
     private Long lastUpdated = 0L;
     private List<Key<Secret>> keys;//TODO make this a global cache using memcache (although slower, would generally update faster)
+    private Secret blankSecret = new Secret(0, "You need to enter a secret in the system before you can view other secrets!", null);
 
     public RandomSecret() {
         super();
@@ -46,7 +47,7 @@ public class RandomSecret extends BasicServlet {
         Cookie[] cookies = req.getCookies();
         boolean needToShare = Utils.correctCookie(cookies);
         if (needToShare) {
-            resp.getWriter().print(Utils.secretToJSON(new Secret(0, "You need to enter a secret in the system before you can view other secrets!"), "null", null));
+            resp.getWriter().print(Utils.secretToJSON(blankSecret, "null", null));
             return;
         }
 
@@ -124,6 +125,6 @@ public class RandomSecret extends BasicServlet {
     }
 
     private String keyHash(Key<Object> key) {
-        return Utils.hash(String.valueOf(key.hashCode()));
+        return Utils.shortHash(String.valueOf(key.hashCode()));
     }
 }

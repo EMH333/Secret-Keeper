@@ -33,7 +33,7 @@ public class Database {
     }
 
     public static boolean objectExists(Key key) {
-        return OfyService.ofy().load().filterKey(key).keys().first() != null;
+        return key != null && OfyService.ofy().load().filterKey(key).keys().first() != null;
     }
 
 
