@@ -12,10 +12,12 @@ import javax.servlet.http.Cookie;
 
 public class UUIDs {
     public static String getUUID(Cookie[] cookies) {
-        for (Cookie c :
-                cookies) {
-            if (c.getName().equals("uuid")) {
-                return c.getValue();
+        if (cookies.length >= 1) {
+            for (Cookie c :
+                    cookies) {
+                if (c.getName().equals("uuid")) {
+                    return c.getValue();
+                }
             }
         }
         return null;

@@ -39,7 +39,7 @@ public class AddSecret extends BasicServlet {
         String temp = req.getParameter("secret");
 
         //insures string is not empty
-        if (temp.isEmpty()) {
+        if (temp == null || temp.isEmpty()) {
             addToDatabase = false;
             //check to see if we are filtering bad words and if we are then insures non are present
         } else if (Constants.FILTER_WORDS) {

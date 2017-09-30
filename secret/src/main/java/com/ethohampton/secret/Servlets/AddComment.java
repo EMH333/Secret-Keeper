@@ -40,7 +40,7 @@ public class AddComment extends BasicServlet {
 
         boolean addToDatabase = true;
         //insures string is not empty
-        if (commentString.isEmpty() || secretID.isEmpty()) {
+        if (commentString == null || secretID == null || secretID.isEmpty() || secretID.isEmpty()) {
             addToDatabase = false;
             //check to see if we are filtering bad words and if we are then insures non are present
         } else if (!Database.objectExists(Key.create(secretID))) {
