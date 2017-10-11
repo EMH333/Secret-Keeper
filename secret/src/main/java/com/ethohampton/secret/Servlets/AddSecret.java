@@ -6,6 +6,8 @@ import com.ethohampton.secret.Objects.Secret;
 import com.ethohampton.secret.Util.Constants;
 import com.ethohampton.secret.Util.Filter;
 import com.ethohampton.secret.Util.UUIDs;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseToken;
 import com.google.inject.Singleton;
 
 import java.io.IOException;
@@ -28,6 +30,18 @@ public class AddSecret extends BasicServlet {
             Filter.loadConfigs();//loads bad words from proper location
     }
 
+    /*
+
+    FirebaseAuth.getInstance().verifyIdToken(idToken)
+        .addOnSuccessListener(new OnSuccessListener<FirebaseToken>() {
+            @Override
+            public void onSuccess(FirebaseToken decodedToken) {
+                String uid = decodedToken.getUid();
+                // ...
+            }
+    });
+
+     */
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
@@ -50,23 +64,31 @@ public class AddSecret extends BasicServlet {
             addToDatabase = false;
         }
 
+
         if (addToDatabase) {
             //attempts to get UUID for user, if that fails then it creates a new one and adds it to the users cookies
-            String uuid = UUIDs.getUUID(req.getCookies());
-            if (uuid == null || uuid.isEmpty()) {
-                uuid = UUIDs.createUUID();
-                resp.addCookie(UUIDs.createUUIDCookie(uuid));
+            String idToken = UUIDs.getUUID(req.getCookies());
+
+            if (idToken != null && !idToken.isEmpty()) {
+                FirebaseToken token = FirebaseAuth.getInstance().verifyIdToken(idToken).getResult();
+
+                if (UUIDs.isValid(token)) { // TODO: 10/9/17 Seperate the authentication logic and the actual insertion of the secret
+
+                    temp = temp.trim();
+                    Secret secret = new Secret(System.currentTimeMillis(), temp, token.getUid());
+                    Database.putSecret(secret);
+
+                    Cookie cookie = new Cookie("addedSecret", "1");
+                    cookie.setMaxAge(Constants.MAX_COOKIE_AGE);//cookie is good a good amount of time
+                    resp.addCookie(cookie);//add cookie to response
+
+                    resp.getWriter().println("Success");
+                } else {
+                    resp.getWriter().println("Your token is not valid, please log in and insure you have confirmed your email");
+                }
+            } else {
+                resp.getWriter().println("Please Login");
             }
-
-            temp = temp.trim();
-            Secret secret = new Secret(System.currentTimeMillis(), temp, uuid);
-            Database.putSecret(secret);
-
-            Cookie cookie = new Cookie("addedSecret", "1");
-            cookie.setMaxAge(Constants.MAX_COOKIE_AGE);//cookie is good a good amount of time
-            resp.addCookie(cookie);//add cookie to response
-
-            resp.getWriter().println("Success");
         } else {
             resp.sendError(400, "Something went wrong, please try again");
         }

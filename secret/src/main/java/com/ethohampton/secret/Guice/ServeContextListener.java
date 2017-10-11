@@ -21,6 +21,9 @@ package com.ethohampton.secret.Guice;
 //
 
 
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.google.firebase.auth.FirebaseCredentials;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceServletContextListener;
@@ -60,6 +63,15 @@ public class ServeContextListener extends GuiceServletContextListener {
                 staticBaseUrl = (override != null) ? override : context.getInitParameter("static-base-url");
             }
         }
+
+
+        FirebaseOptions options;
+        options = new FirebaseOptions.Builder()
+                .setCredential(FirebaseCredentials.applicationDefault())
+                .setDatabaseUrl("https://secretkeeper-169722.firebaseio.com")
+                .build();
+        FirebaseApp.initializeApp(options);
+
         super.contextInitialized(servletContextEvent);
     }
 
