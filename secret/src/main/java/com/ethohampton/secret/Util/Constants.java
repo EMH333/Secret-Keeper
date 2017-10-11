@@ -24,6 +24,10 @@ public class Constants {
     public static final String BAD_HASHES_FILENAME = "WEB-INF/banned_hashes.txt";
 
     public static final int MAX_COMMENTS_PER_LOAD = 25;
+
+
+    public static final int CHANCE_TO_SHOW_DOWNVOTED_COMMENT = 8;//One in 8 chance that a negatively downvoted comment will be shown
+    public static final int CONSIDERED_DOWNVOTED = -2;//a comment is considered to be downvoted when it has a score of -2
     /*
     public static long generateUUID(){
         Random r = new SecureRandom();

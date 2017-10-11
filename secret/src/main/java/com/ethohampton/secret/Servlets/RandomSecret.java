@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
 
 import javax.inject.Singleton;
 import javax.servlet.http.Cookie;
@@ -28,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Singleton
 public class RandomSecret extends BasicServlet {
+    static final Logger LOG = Logger.getLogger(RandomSecret.class.getName());
 
     private Long lastUpdated = 0L;
     private List<Key<Secret>> keys;//TODO make this a global cache using memcache (although slower, would generally update faster)
@@ -91,11 +93,36 @@ public class RandomSecret extends BasicServlet {
 
             Secret q = Database.getSecret(key);
 
-            //makes sure question is not null
-            if (q == null) {
-                resp.sendError(404, "Invalid ID");
-                return;
+            //insure down voted secrets aren't shown very often
+            boolean go = false;
+            while (((q.getUpvotes() - q.getDownvotes()) < Constants.CONSIDERED_DOWNVOTED) && !go) {
+                //pick and see if a comment has a chance to be shown
+                int rand = r.nextInt(Constants.CHANCE_TO_SHOW_DOWNVOTED_COMMENT);
+                if (rand == Constants.CHANCE_TO_SHOW_DOWNVOTED_COMMENT - 1) {
+                    go = true;
+                    LOG.info("Showing a downvoted comment");
+                } else {
+                    //copied from above (lines 85 thru 92)
+                    //if not then find a new comment to show and repeat
+                    while (seen.contains(keyHash(key))) {
+                        i = r.nextInt(keys.size());
+                        //get another question
+                        key = keys.get(i).getRoot();
+
+                        q = Database.getSecret(key);
+                    }
+                }
+
             }
+
+
+            /*
+             //makes sure question is not null
+             if (q == null) {
+             resp.sendError(404, "Invalid ID");
+             return;
+             }
+             */
 
             List<Comment> comments = null;
             if (req.getParameter("loadComments").equals("true")) {//loads comments if asked
