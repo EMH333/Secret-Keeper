@@ -43,7 +43,7 @@ public class RandomSecret extends BasicServlet {
     public void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
         resp.setContentType("text/plain");
-        ArrayList<String> seen = new ArrayList<>();
+        ArrayList seen = new ArrayList<>();
 
         //checks to see if user has given a secret to the system and tells them to if they have not
         Cookie[] cookies = req.getCookies();
@@ -85,10 +85,12 @@ public class RandomSecret extends BasicServlet {
                 seen.clear();
             }
 
-            while (seen.contains(keyHash(key))) {
+            int loop = 0;
+            while (seen.contains(keyHash(key)) && loop < Constants.MAX_RANDOM_LOOPS) {
                 i = r.nextInt(keys.size());
                 //get another question
                 key = keys.get(i).getRoot();
+                loop++;
             }
 
             Secret q = Database.getSecret(key);
@@ -125,7 +127,7 @@ public class RandomSecret extends BasicServlet {
              */
 
             List<Comment> comments = null;
-            if (req.getParameter("loadComments").equals("true")) {//loads comments if asked
+            if (req.getParameter("loadComments") != null && req.getParameter("loadComments").equals("true")) {//loads comments if asked
                 comments = Database.getCommentsFromSecret(q.getId(), 0);
             }
             //send response
