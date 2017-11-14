@@ -1,5 +1,7 @@
 package com.ethohampton.secret.Util;
 
+import org.jetbrains.annotations.Contract;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,6 +25,7 @@ public class Filter {
 
     private static boolean loadedConfigs = false;
 
+    @Contract(pure = true)
     public static boolean hasConfigs() {
         return loadedConfigs;
     }
@@ -79,6 +82,7 @@ public class Filter {
      * @param input string that should be filtered
      * @return array list of words found
      */
+    @Contract("null -> !null")
     public static ArrayList<String> badWordsFound(String input) {
         if (input == null) {
             return new ArrayList<>();

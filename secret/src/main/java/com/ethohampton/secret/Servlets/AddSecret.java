@@ -32,18 +32,6 @@ public class AddSecret extends BasicServlet {
             Filter.loadConfigs();//loads bad words from proper location
     }
 
-    /*
-
-    FirebaseAuth.getInstance().verifyIdToken(idToken)
-        .addOnSuccessListener(new OnSuccessListener<FirebaseToken>() {
-            @Override
-            public void onSuccess(FirebaseToken decodedToken) {
-                String uid = decodedToken.getUid();
-                // ...
-            }
-    });
-
-     */
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
@@ -82,8 +70,8 @@ public class AddSecret extends BasicServlet {
             resp.getWriter().println("That secret already exists");
         }
 
-        //verifys token that was procured using async code above (a 2 in one :) yay)
-        try {// TODO: 10/25/17 Insure we don't skip validation
+        //verifies token that was procured using async code above (a 2 in one :) yay)
+        try {
             assert tokenTask != null;
             if (addToDatabase && !UUIDs.isValid(tokenTask.get())) {
                 addToDatabase = false;
@@ -91,16 +79,20 @@ public class AddSecret extends BasicServlet {
             }
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
+            addToDatabase = false;
+            resp.getWriter().println("There appears to have been a problem, please try again");
         }
 
 
         if (addToDatabase) {
             rawSecret = rawSecret.trim();
             Secret secret = null;
-            try {// TODO: 10/25/17 Add code to insure secret actually gets added
+            try {
                 secret = new Secret(System.currentTimeMillis(), rawSecret, tokenTask.get().getUid());
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
+                resp.setStatus(500);
+                resp.getWriter().println("An error occured at the last moment, please try again");
             }
             Database.putSecret(secret);
 
@@ -111,6 +103,7 @@ public class AddSecret extends BasicServlet {
             resp.getWriter().println("Success");
         } else {
             resp.setStatus(400);
+
         }
     }
 

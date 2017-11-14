@@ -97,11 +97,12 @@ public class AddComment extends BasicServlet {
                 referenceKey = Key.create(commentID).getName();
             }
             Comment comment = null;
-            // TODO: 10/29/17 handle exceptions
             try {
                 comment = new Comment(System.currentTimeMillis(), commentString, Key.create(secretID).getName(), tokenTask.get().getUid()).setReferencedCommentID(referenceKey);
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
+                resp.setStatus(500);
+                resp.getWriter().print("Something went wrong, please try again");
             }
             Database.putComment(comment);
 

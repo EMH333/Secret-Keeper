@@ -6,6 +6,8 @@ import com.ethohampton.secret.Util.Constants;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.LoadResult;
 
+import org.jetbrains.annotations.Contract;
+
 import java.util.List;
 
 /**
@@ -32,6 +34,7 @@ public class Database {
         return (Secret) loadResult.now();
     }
 
+    @Contract("null -> false")
     public static boolean objectExists(Key key) {
         return key != null && OfyService.ofy().load().filterKey(key).keys().first() != null;
     }

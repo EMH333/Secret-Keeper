@@ -2,6 +2,8 @@ package com.ethohampton.secret.Util;
 
 import com.google.firebase.auth.FirebaseToken;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.UUID;
 
 import javax.servlet.http.Cookie;
@@ -15,6 +17,8 @@ import javax.servlet.http.Cookie;
 public class UUIDs {
     public static final String TOKEN_NAME = "idToken";
 
+    @Nullable
+    @Deprecated
     public static String getUUID(Cookie[] cookies) {
         for (Cookie cookie : cookies) {
             if (cookie.getName().equals(TOKEN_NAME)) {
@@ -24,6 +28,7 @@ public class UUIDs {
         return null;
     }
 
+    @Deprecated
     public static Cookie createUUIDCookie(String uuid) {
         Cookie cookie = new Cookie(TOKEN_NAME, uuid);
         cookie.setMaxAge(Constants.MAX_COOKIE_AGE * 20);//extend length of cookie by a little bit
