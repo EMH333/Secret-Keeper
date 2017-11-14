@@ -66,6 +66,7 @@ public class ServeModule extends ServletModule {
 
             //loads 4 test secrets to save dev time
             ObjectifyService.run(new VoidWork() {
+                @Override
                 public void vrun() {
                     Database.putSecret(new Secret(System.currentTimeMillis(), "This is a test", UUIDs.createUUID()));
                     Database.putSecret(new Secret(System.currentTimeMillis(), "This is a test 1", UUIDs.createUUID()));

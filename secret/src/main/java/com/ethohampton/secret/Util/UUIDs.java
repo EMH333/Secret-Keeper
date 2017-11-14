@@ -34,6 +34,10 @@ public class UUIDs {
         return Utils.longHash(UUID.randomUUID().toString());
     }
 
+    /**
+     * @param token the token to verify
+     * @return if the user has a valid token and a verified email
+     */
     public static boolean isValid(FirebaseToken token) {
         //insure person has a uuid
         if (token.getUid() != null) {

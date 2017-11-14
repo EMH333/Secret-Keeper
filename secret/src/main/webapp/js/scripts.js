@@ -1,7 +1,24 @@
 var currentSecret;
-
+var token;
 
 $(document).ready(function() {
+
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+      // User is signed in.
+      user.getIdToken( /* forceRefresh */ true).then(function(idToken) {
+        //get firebase token
+        token = idToken;
+      });
+      $("#submit-secret").text('Submit');
+      $('#submit-secret').prop('disabled', false);
+    } else {
+      $("#submit-secret").text('Please Sign In Before Entering a Secret');
+      $('#submit-secret').prop('disabled', true);
+      token = null;
+      // No user is signed in.
+    }
+  });
 
   nextSecret(); //load a secret to it is all ready to go
 
@@ -22,15 +39,14 @@ $(document).ready(function() {
       }
     }, 1000);
 
-    // get the form data
-    // there are many ways to get this data using jQuery (you can use the class or id also)
-    var formData = 'secret' + '=' + $('input[name=secret]').val();
-
     // process the form
     $.ajax({
         type: 'POST', // define the type of HTTP verb we want to use (POST for our form)
         url: 'add', // the url where we want to POST
-        data: formData, // our data object
+        data: {
+          'secret': $('input[name=secret]').val(),
+          'idToken': token
+        }, // our data object
         dataType: 'text', // what type of data do we expect back from the server
         encode: true,
         success: function(data, textStatus, xhr) {

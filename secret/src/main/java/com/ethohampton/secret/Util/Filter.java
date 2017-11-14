@@ -29,8 +29,8 @@ public class Filter {
 
     public static void loadConfigs() {
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(Constants.BAD_WORDS_FILENAME))));
-            String line = "";
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(Constants.BAD_WORDS_FILENAME)), "UTF-8"));
+            String line;
             int counter = 0;
             while ((line = reader.readLine()) != null) {
                 counter++;
@@ -58,8 +58,8 @@ public class Filter {
             }
             System.out.println("Loaded " + counter + " words to filter out");
 
-            BufferedReader hashesReader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(Constants.BAD_HASHES_FILENAME))));
-            String hash = "";
+            BufferedReader hashesReader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(Constants.BAD_HASHES_FILENAME)), "UTF-8"));
+            String hash;
             while ((hash = hashesReader.readLine()) != null) {
                 bannedHashes.add(hash);
             }

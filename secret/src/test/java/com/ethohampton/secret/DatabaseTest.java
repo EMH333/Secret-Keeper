@@ -19,8 +19,8 @@ import static org.junit.Assert.assertTrue;
 public class DatabaseTest {
     private String secretID;
     private String commentID;
-    private Secret secret = new Secret(System.currentTimeMillis(), "DatabaseTest");
-    private Comment comment = new Comment(System.currentTimeMillis(), "Database Comment", secret.getId());
+    private Secret secret = new Secret(System.currentTimeMillis(), "DatabaseTest", "testUser");
+    private Comment comment = new Comment(System.currentTimeMillis(), "Database Comment", secret.getId(), "testUser");
 
     @Before
     public void setUp() throws Exception {

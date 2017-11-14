@@ -6,9 +6,13 @@ import com.ethohampton.secret.Objects.Comment;
 import com.ethohampton.secret.Util.Constants;
 import com.ethohampton.secret.Util.Filter;
 import com.ethohampton.secret.Util.UUIDs;
+import com.google.api.core.ApiFuture;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseToken;
 import com.googlecode.objectify.Key;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Singleton
 public class AddComment extends BasicServlet {
+
     public AddComment() {
         super();
         if (!Filter.hasConfigs())
@@ -39,6 +44,21 @@ public class AddComment extends BasicServlet {
         String commentString = req.getParameter("comment");
 
         boolean addToDatabase = true;
+        ApiFuture<FirebaseToken> tokenTask = null;
+
+        //attempts to get UUID for user, if that fails then it creates a new one and adds it to the users cookies
+        String idToken = req.getParameter(UUIDs.TOKEN_NAME);
+        if (idToken != null && !idToken.isEmpty()) {
+            try {
+                tokenTask = FirebaseAuth.getInstance().verifyIdTokenAsync(idToken);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            resp.getWriter().println("Please Login");
+            addToDatabase = false;
+        }
+
         //insures string is not empty
         if (commentString == null || secretID == null || secretID.isEmpty() || secretID.isEmpty()) {
             addToDatabase = false;
@@ -58,20 +78,31 @@ public class AddComment extends BasicServlet {
             }
         }
 
-        if (addToDatabase) {//if it passes all checks
-            //attempts to get UUID for user, if that fails then it creates a new one and adds it to the users cookies
-            String uuid = UUIDs.getUUID(req.getCookies());
-            if (uuid == null || uuid.isEmpty()) {
-                uuid = UUIDs.createUUID();
-                resp.addCookie(UUIDs.createUUIDCookie(uuid));
+        //verifys token that was procured using async code above (a 2 in one :) yay)
+        try {// TODO: 10/25/17 Insure we don't skip validation
+            assert tokenTask != null;
+            if (addToDatabase && !UUIDs.isValid(tokenTask.get())) {
+                addToDatabase = false;
+                resp.getWriter().println("Your token is not valid, please log in and insure you have confirmed your email");
             }
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        if (addToDatabase) {//if it passes all checks
 
             commentString = commentString.trim();
             String referenceKey = "";
             if (commentID != null) {
                 referenceKey = Key.create(commentID).getName();
             }
-            Comment comment = new Comment(System.currentTimeMillis(), commentString, Key.create(secretID).getName(), uuid).setReferencedCommentID(referenceKey);
+            Comment comment = null;
+            // TODO: 10/29/17 handle exceptions
+            try {
+                comment = new Comment(System.currentTimeMillis(), commentString, Key.create(secretID).getName(), tokenTask.get().getUid()).setReferencedCommentID(referenceKey);
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
             Database.putComment(comment);
 
             resp.getWriter().println("Success");

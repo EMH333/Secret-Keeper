@@ -21,13 +21,14 @@ package com.ethohampton.secret.Guice;
 //
 
 
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import com.google.firebase.auth.FirebaseCredentials;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceServletContextListener;
 
+import java.io.IOException;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletContext;
@@ -35,7 +36,7 @@ import javax.servlet.ServletContextEvent;
 
 
 public class ServeContextListener extends GuiceServletContextListener {
-    static final Logger LOG = Logger.getLogger(ServeContextListener.class.getName());
+    private static final Logger LOG = Logger.getLogger(ServeContextListener.class.getName());
 
     // where we want to serve user management urls from.  Allows
     // us to use this as a module of sorts
@@ -65,12 +66,21 @@ public class ServeContextListener extends GuiceServletContextListener {
         }
 
 
-        FirebaseOptions options;
-        options = new FirebaseOptions.Builder()
-                .setCredential(FirebaseCredentials.applicationDefault())
-                .setDatabaseUrl("https://secretkeeper-169722.firebaseio.com")
-                .build();
-        FirebaseApp.initializeApp(options);
+        FirebaseOptions options = null;
+        try {
+            options = new FirebaseOptions.Builder()
+                    .setCredentials(GoogleCredentials.getApplicationDefault())
+                    .setDatabaseUrl("https://secretkeeper-169722.firebaseio.com")
+                    .setProjectId("secretkeeper-169722")
+                    .build();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (options != null) {
+            FirebaseApp.initializeApp(options);
+        } else {
+            LOG.severe("Firebase not initialized");
+        }
 
         super.contextInitialized(servletContextEvent);
     }

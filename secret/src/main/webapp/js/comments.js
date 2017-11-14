@@ -9,7 +9,11 @@ $(document).ready(function() {
     $.ajax({
         type: 'POST', // define the type of HTTP verb we want to use (POST for our form)
         url: 'addcomment', // the url where we want to POST
-        data: formData, // our data object
+        data: {
+          'comment': $('input[name=comment]').val(),
+          'secretID': getCurrentSecret().id,
+          'idToken': token
+        }, // our data object
         dataType: 'text', // what type of data do we expect back from the server
         encode: true,
       })

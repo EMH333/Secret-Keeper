@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Singleton
 public class RandomSecret extends BasicServlet {
-    static final Logger LOG = Logger.getLogger(RandomSecret.class.getName());
+    private static final Logger LOG = Logger.getLogger(RandomSecret.class.getName());
 
     private Long lastUpdated = 0L;
     private List<Key<Secret>> keys;//TODO make this a global cache using memcache (although slower, would generally update faster)
@@ -104,12 +104,14 @@ public class RandomSecret extends BasicServlet {
                 } else {
                     //copied from above (lines 85 thru 92)
                     //if not then find a new comment to show and repeat
-                    while (seen.contains(keyHash(key))) {
+                    int loop2 = 0;
+                    while (seen.contains(keyHash(key)) && loop2 < Constants.MAX_RANDOM_LOOPS) {
                         i = r.nextInt(keys.size());
                         //get another question
                         key = keys.get(i).getRoot();
 
                         q = Database.getSecret(key);
+                        loop2++;
                     }
                 }
 

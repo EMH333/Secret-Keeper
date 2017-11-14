@@ -6,11 +6,13 @@ import com.ethohampton.secret.Objects.Secret;
 import com.ethohampton.secret.Util.Constants;
 import com.ethohampton.secret.Util.Filter;
 import com.ethohampton.secret.Util.UUIDs;
+import com.google.api.core.ApiFuture;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.inject.Singleton;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -48,49 +50,67 @@ public class AddSecret extends BasicServlet {
         resp.setContentType("text/plain");
 
         boolean addToDatabase = true;
-
+        ApiFuture<FirebaseToken> tokenTask = null;
         //gets string and checks if it should be added to the database
-        String temp = req.getParameter("secret");
+        String rawSecret = req.getParameter("secret");
+
+        //attempts to get UUID for user, if that fails then it creates a new one and adds it to the users cookies
+        String idToken = req.getParameter(UUIDs.TOKEN_NAME);
+        if (idToken != null && !idToken.isEmpty()) {
+            try {
+                tokenTask = FirebaseAuth.getInstance().verifyIdTokenAsync(idToken);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            resp.getWriter().println("Please Login");
+            addToDatabase = false;
+        }
 
         //insures string is not empty
-        if (temp == null || temp.isEmpty()) {
+        if (rawSecret == null || rawSecret.isEmpty()) {
             addToDatabase = false;
+            resp.getWriter().println("Please enter a secret");
             //check to see if we are filtering bad words and if we are then insures non are present
         } else if (Constants.FILTER_WORDS) {
-            if (!Filter.passesAllFilters(temp)) {//if it does not pass all precheck filters
+            if (!Filter.passesAllFilters(rawSecret)) {//if it does not pass all precheck filters
                 addToDatabase = false;
+                resp.getWriter().println("Please make sure you are using polite words :)");
             }
-        } else if (Database.objectExists(Secret.createKey(temp))) {
+        } else if (Database.objectExists(Secret.createKey(rawSecret))) {
             addToDatabase = false;
+            resp.getWriter().println("That secret already exists");
+        }
+
+        //verifys token that was procured using async code above (a 2 in one :) yay)
+        try {// TODO: 10/25/17 Insure we don't skip validation
+            assert tokenTask != null;
+            if (addToDatabase && !UUIDs.isValid(tokenTask.get())) {
+                addToDatabase = false;
+                resp.getWriter().println("Your token is not valid, please log in and insure you have confirmed your email");
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
         }
 
 
         if (addToDatabase) {
-            //attempts to get UUID for user, if that fails then it creates a new one and adds it to the users cookies
-            String idToken = UUIDs.getUUID(req.getCookies());
-
-            if (idToken != null && !idToken.isEmpty()) {
-                FirebaseToken token = FirebaseAuth.getInstance().verifyIdToken(idToken).getResult();
-
-                if (UUIDs.isValid(token)) { // TODO: 10/9/17 Seperate the authentication logic and the actual insertion of the secret
-
-                    temp = temp.trim();
-                    Secret secret = new Secret(System.currentTimeMillis(), temp, token.getUid());
-                    Database.putSecret(secret);
-
-                    Cookie cookie = new Cookie("addedSecret", "1");
-                    cookie.setMaxAge(Constants.MAX_COOKIE_AGE);//cookie is good a good amount of time
-                    resp.addCookie(cookie);//add cookie to response
-
-                    resp.getWriter().println("Success");
-                } else {
-                    resp.getWriter().println("Your token is not valid, please log in and insure you have confirmed your email");
-                }
-            } else {
-                resp.getWriter().println("Please Login");
+            rawSecret = rawSecret.trim();
+            Secret secret = null;
+            try {// TODO: 10/25/17 Add code to insure secret actually gets added
+                secret = new Secret(System.currentTimeMillis(), rawSecret, tokenTask.get().getUid());
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
             }
+            Database.putSecret(secret);
+
+            Cookie cookie = new Cookie("addedSecret", "1");
+            cookie.setMaxAge(Constants.MAX_COOKIE_AGE);//cookie is good a good amount of time
+            resp.addCookie(cookie);//add cookie to response
+
+            resp.getWriter().println("Success");
         } else {
-            resp.sendError(400, "Something went wrong, please try again");
+            resp.setStatus(400);
         }
     }
 
