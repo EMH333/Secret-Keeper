@@ -1,6 +1,8 @@
 /**
  * Handles the sign in button press.
  */
+var firstUsage = false;
+
 function signIn() {
   var email = document.getElementById('email').value;
   var password = document.getElementById('password').value;
@@ -67,26 +69,21 @@ function handleSignUp() {
     }
     console.log(error);
     wasError = true;
+  }).then(function() {
+    firstUsage = true;
   });
-
-  //if the current user is valid and has not verifyed email, then send verification email.
-  if (firebase.auth().currentUser != null && wasError == false && firebase.auth().currentUser.emailVerified == false) {
-    sendEmailVerification();
-  }
-
 }
 /**
  * Sends an email verification to the user.
  */
 function sendEmailVerification() {
-  // [START sendemailverification]
-  firebase.auth().currentUser.sendEmailVerification().then(function() {
-    // Email Verification sent!
-    // [START_EXCLUDE]
-    alert('Email Verification Sent!');
-    // [END_EXCLUDE]
-  });
-  // [END sendemailverification]
+  //if the current user is valid and has not verifyed email, then send verification email.
+  if (firebase.auth().currentUser != null && firebase.auth().currentUser.emailVerified == false) {
+    firebase.auth().currentUser.sendEmailVerification().then(function() {
+      console.log("Sending Verification Email");
+      alert('Email Verification Sent!');
+    });
+  }
 }
 
 function sendPasswordReset() {
@@ -132,6 +129,11 @@ function initApp() {
       document.getElementById('sign-in-button').textContent = 'Sign out';
       document.getElementById('sign-in').textContent = 'Sign out';
 
+      //send verification email
+      if (firstUsage == true && user.emailVerified == false) {
+        firstUsage = false;
+        sendEmailVerification();
+      }
       //hide the sign in popup
       var modal = $("#sign-in-popup");
       modal.modal('hide');

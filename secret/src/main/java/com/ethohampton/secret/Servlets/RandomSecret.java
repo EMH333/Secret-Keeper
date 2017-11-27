@@ -47,7 +47,7 @@ public class RandomSecret extends BasicServlet {
 
         //checks to see if user has given a secret to the system and tells them to if they have not
         Cookie[] cookies = req.getCookies();
-        boolean needToShare = Utils.correctCookie(cookies);
+        boolean needToShare = Utils.correctCookie(cookies);// TODO: 11/21/17 Replace this with login check 
         if (needToShare) {
             resp.getWriter().print(Utils.secretToJSON(blankSecret, "null", null));
             return;

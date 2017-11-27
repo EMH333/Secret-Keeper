@@ -42,7 +42,7 @@ public class VoteSecret extends BasicServlet {
                 resp.sendError(404, "Question not found");
             } else {
 
-                //FIXME: 7/31/17 add caching to prevent resorces from writing so many votes
+                //FIXME: 7/31/17 add caching to prevent resources from writing so many votes
                 if (isUpVote) {
                     temp.addUpVote();
                 } else {

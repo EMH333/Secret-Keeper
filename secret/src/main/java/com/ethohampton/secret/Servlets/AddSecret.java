@@ -75,7 +75,7 @@ public class AddSecret extends BasicServlet {
             assert tokenTask != null;
             if (addToDatabase && !UUIDs.isValid(tokenTask.get())) {
                 addToDatabase = false;
-                resp.getWriter().println("Your token is not valid, please log in and insure you have confirmed your email");
+                resp.getWriter().println("Your token is not valid, please log in and insure you have confirmed your email. You may have to log in again for your account to update");
             }
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
@@ -87,12 +87,14 @@ public class AddSecret extends BasicServlet {
         if (addToDatabase) {
             rawSecret = rawSecret.trim();
             Secret secret = null;
+            String uid;
             try {
-                secret = new Secret(System.currentTimeMillis(), rawSecret, tokenTask.get().getUid());
+                uid = tokenTask.get().getUid();
+                secret = new Secret(System.currentTimeMillis(), rawSecret, uid);
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
                 resp.setStatus(500);
-                resp.getWriter().println("An error occured at the last moment, please try again");
+                resp.getWriter().println("An error occurred at the last moment, please try again");
             }
             Database.putSecret(secret);
 
