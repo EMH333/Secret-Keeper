@@ -90,7 +90,7 @@ gulp.task('css', function() {
 });
 
 // watch for changes
-gulp.task('watch', function() {
+gulp.task('watcher', function() {
 
   // image changes
   //gulp.watch(folder.src + 'images/**/*', ['images']);
@@ -108,6 +108,6 @@ gulp.task('watch', function() {
 
 
 gulp.task('run', ['html', 'js', 'css', 'fonts']);
+gulp.task('watch', ['watcher', 'run']);
 
-
-gulp.task('default', ['run', 'watch'])
+gulp.task('default', ['run']);
